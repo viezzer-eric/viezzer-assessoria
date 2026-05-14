@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { CheckCircle2, MessageCircle } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import {
     IconBrandInstagram,
     IconBrandWhatsapp,

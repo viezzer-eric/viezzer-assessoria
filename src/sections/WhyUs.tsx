@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { IconShieldCheck, IconDiscount2, IconUsers, IconTrophy, IconTruck } from "@tabler/icons-react";
+import { IconDiscount2, IconUsers, IconTrophy, IconTruck } from "@tabler/icons-react";
 
 
 const cardData: Record<string, { title: string; description: string; Icon: any; bg: string; iconBg: string }> = {

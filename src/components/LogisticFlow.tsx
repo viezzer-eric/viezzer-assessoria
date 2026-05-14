@@ -1,5 +1,5 @@
-import { useRef } from 'react';
-import { motion, useScroll, useTransform, useSpring, MotionValue } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
+import { motion, useScroll, useTransform, useSpring, MotionValue, useMotionValue, animate, useInView } from 'framer-motion';
 import {
     IconBrandWhatsapp,
     IconUsersGroup,
@@ -16,6 +16,26 @@ interface LogisticFlowProps {
 
 export default function LogisticFlow({ scrollYProgress: externalScrollYProgress }: LogisticFlowProps = {}) {
     const containerRef = useRef<HTMLDivElement>(null);
+    const isInView = useInView(containerRef, { once: true, amount: 0.3 });
+    const [isMobile, setIsMobile] = useState(false);
+    const autoProgress = useMotionValue(0);
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    useEffect(() => {
+        if (isMobile && isInView) {
+            animate(autoProgress, 1, {
+                duration: 3.5,
+                ease: "easeInOut",
+                delay: 0.5
+            });
+        }
+    }, [isMobile, isInView, autoProgress]);
 
     // 1. PERFORMANCE: Usamos o targetRef para que o progresso 
     // seja relativo apenas a esta seção, evitando cálculos globais desnecessários.
@@ -24,7 +44,7 @@ export default function LogisticFlow({ scrollYProgress: externalScrollYProgress 
         offset: ["start center", "end center"] // Começa quando o topo entra no meio, termina quando o fim chega no meio
     });
 
-    const progressToUse = externalScrollYProgress || internalScrollYProgress;
+    const progressToUse = isMobile ? autoProgress : (externalScrollYProgress || internalScrollYProgress);
 
     // 2. SUAVE E RESPONSIVO: Spring com menos damping para evitar o "atraso" visual
     const smoothProgress = useSpring(progressToUse, { stiffness: 70, damping: 25 });

@@ -31,7 +31,7 @@ function QuoteIcon() {
 // Skeleton placeholder enquanto carrega
 function CardSkeleton() {
     return (
-        <div className="rounded-3xl p-8 bg-white flex-shrink-0 w-[300px] md:w-[360px] border border-zinc-100 animate-pulse">
+        <div className="snap-center rounded-3xl p-8 bg-white flex-shrink-0 w-[85vw] max-w-[320px] md:w-[360px] border border-zinc-100 animate-pulse">
             <div className="w-10 h-8 bg-zinc-100 rounded mb-5" />
             <div className="flex gap-1 mb-4">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -61,7 +61,7 @@ function TestimonialCard({ testimonial, index }: { testimonial: any; index: numb
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
             transition={{ type: "spring", stiffness: 300, damping: 24, delay: Math.min(index * 0.08, 0.4) }}
-            className="rounded-3xl p-8 bg-white flex-shrink-0 w-[300px] md:w-[360px] flex flex-col justify-between"
+            className="snap-center rounded-3xl p-8 bg-white flex-shrink-0 w-[85vw] max-w-[320px] md:w-[360px] flex flex-col justify-between"
             style={{
                 border: "1px solid rgba(197, 160, 89, 0.15)",
                 boxShadow: "0 10px 30px rgba(0,0,0,0.03)",
@@ -116,12 +116,9 @@ function parseCSV(text: string) {
     }).filter(Boolean);
 }
 
-export default function TestimonialsSection() {
+export default function Feedback() {
     const [testimonials, setTestimonials] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const carouselRef = useRef<HTMLDivElement>(null);
-    const trackRef = useRef<HTMLDivElement>(null);
-    const [dragConstraints, setDragConstraints] = useState({ left: 0, right: 0 });
     const sectionRef = useRef<HTMLDivElement>(null);
     const hasLoaded = useRef(false);
 
@@ -149,17 +146,7 @@ export default function TestimonialsSection() {
         return () => observer.disconnect();
     }, []);
 
-    useEffect(() => {
-        const update = () => {
-            if (carouselRef.current && trackRef.current) {
-                const diff = trackRef.current.scrollWidth - carouselRef.current.offsetWidth;
-                setDragConstraints({ left: diff > 0 ? -diff : 0, right: 0 });
-            }
-        };
-        const timer = setTimeout(update, 300);
-        window.addEventListener("resize", update);
-        return () => { clearTimeout(timer); window.removeEventListener("resize", update); };
-    }, [testimonials]);
+
 
     return (
         <div
@@ -186,22 +173,18 @@ export default function TestimonialsSection() {
             </div>
 
             {/* Carousel */}
-            <div ref={carouselRef} className="w-full max-w-[1400px] mx-auto overflow-hidden px-6 md:px-12 py-10">
-                <motion.div
-                    ref={trackRef}
-                    drag="x"
-                    dragConstraints={dragConstraints}
-                    dragElastic={0.12}
-                    dragTransition={{ bounceStiffness: 200, bounceDamping: 24 }}
-                    className="flex gap-6 md:gap-8 cursor-grab active:cursor-grabbing w-max"
-                >
-                    {loading
-                        ? Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)
-                        : testimonials.map((card, index) => (
-                            <TestimonialCard key={card.id} testimonial={card} index={index} />
-                        ))
-                    }
-                </motion.div>
+            <div className="w-full max-w-[1400px] mx-auto overflow-x-auto snap-x snap-mandatory flex gap-4 md:gap-8 px-6 md:px-12 py-10 scroll-pl-6 md:scroll-pl-12 no-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                <style>{`
+                    .no-scrollbar::-webkit-scrollbar { display: none; }
+                `}</style>
+                {loading
+                    ? Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)
+                    : testimonials.map((card, index) => (
+                        <TestimonialCard key={card.id} testimonial={card} index={index} />
+                    ))
+                }
+                {/* Spacer to allow the last item to be fully scrolled in */}
+                <div className="w-2 md:w-6 shrink-0" />
             </div>
 
             {!loading && testimonials.length > 0 && (

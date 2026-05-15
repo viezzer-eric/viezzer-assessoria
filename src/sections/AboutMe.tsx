@@ -71,7 +71,7 @@ const AboutMe = () => {
                         </ul>
 
                         <div className="mt-10 pt-10 border-t border-zinc-100 flex items-center gap-6">
-                            <a href="#" className="flex items-center gap-2 text-zinc-400 hover:text-zinc-900 transition-colors">
+                            <a href="https://instagram.com/avz.assessoria" target='_blank' className="flex items-center gap-2 text-zinc-400 hover:text-zinc-900 transition-colors">
                                 <IconBrandInstagram size={20} />
                                 <span className="text-xs font-bold uppercase tracking-widest">Instagram</span>
                             </a>

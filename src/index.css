@@ -1,38 +1,77 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&display=swap');
 
 :root {
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+  --serif: 'Cormorant Garamond', Georgia, serif;
   --mono: ui-monospace, Consolas, monospace;
-}
-
-/* Garante que fontes não bloqueiem render */
-@font-face {
-  font-display: swap;
+  --gold: #C5A059;
+  --gold-light: rgba(197, 160, 89, 0.1);
 }
 
 body {
   margin: 0;
+  font-family: var(--sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Evita layout shift no mobile */
-  overflow-x: hidden;
 }
 
-/* Contém will-change para evitar layer explosion */
-.motion-safe {
-  will-change: auto;
+/* Tipografia Serif melhorada */
+.font-serif {
+  font-family: var(--serif) !important;
 }
 
-/* Tela branca no mobile: garante que o root renderize imediatamente */
-#root {
-  min-height: 100dvh;
-  background-color: #F5F5F4;
+/* Seleção de texto com identidade visual */
+::selection {
+  background-color: rgba(197, 160, 89, 0.2);
+  color: #1a1a1a;
 }
 
-/* Blur pesado causa stutter no mobile — usar com moderação */
-@media (max-width: 768px) {
-  .blur-\[120px\] {
-    display: none;
-  }
+/* Scrollbar customizada e fina */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(197, 160, 89, 0.35);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(197, 160, 89, 0.6);
+}
+
+/* Focus ring elegante */
+*:focus-visible {
+  outline: 2px solid rgba(197, 160, 89, 0.6);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* Smooth transitions globais */
+*, *::before, *::after {
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Refinamento de imagens */
+img {
+  image-rendering: high-quality;
+}
+
+/* Utility: linha decorativa dourada */
+.gold-line {
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  height: 1px;
+  width: 100%;
+}
+
+/* Heading display refinado */
+h1, h2, h3 {
+  letter-spacing: -0.02em;
+}
+
+/* Anti-flicker para animações */
+.will-change-transform {
+  will-change: transform;
 }

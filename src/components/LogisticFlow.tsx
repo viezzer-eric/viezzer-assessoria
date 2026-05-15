@@ -1,5 +1,14 @@
 import { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, useSpring, MotionValue, useMotionValue, animate, useInView } from 'framer-motion';
+import {
+    motion,
+    useScroll,
+    useTransform,
+    useSpring,
+    MotionValue,
+    useMotionValue,
+    animate,
+    useInView,
+} from 'framer-motion';
 import {
     IconBrandWhatsapp,
     IconUsersGroup,
@@ -7,60 +16,49 @@ import {
     IconTruckDelivery,
     IconCheck,
     IconSend,
-    IconStarFilled
+    IconStar,
 } from '@tabler/icons-react';
 
 interface LogisticFlowProps {
     scrollYProgress?: MotionValue<number>;
 }
 
+// Pontos de gatilho de cada step
+const STEP1 = 0.05;
+const STEP2 = 0.28;
+const STEP3 = 0.51;
+const STEP4 = 0.75;
+
 export default function LogisticFlow({ scrollYProgress: externalScrollYProgress }: LogisticFlowProps = {}) {
     const containerRef = useRef<HTMLDivElement>(null);
     const isInView = useInView(containerRef, { once: true, amount: 0.3 });
-    const [isMobile, setIsMobile] = useState(false);
+    const isMobile = !externalScrollYProgress; // se não recebeu prop, é mobile
     const autoProgress = useMotionValue(0);
 
-    useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
-
+    // No mobile anima automaticamente quando entra na tela
     useEffect(() => {
         if (isMobile && isInView) {
             animate(autoProgress, 1, {
-                duration: 3.5,
-                ease: "easeInOut",
-                delay: 0.5
+                duration: 3,
+                ease: 'easeInOut',
+                delay: 0.4,
             });
         }
     }, [isMobile, isInView, autoProgress]);
 
-    // 1. PERFORMANCE: Usamos o targetRef para que o progresso 
-    // seja relativo apenas a esta seção, evitando cálculos globais desnecessários.
     const { scrollYProgress: internalScrollYProgress } = useScroll({
         target: containerRef,
-        offset: ["start center", "end center"] // Começa quando o topo entra no meio, termina quando o fim chega no meio
+        offset: ['start center', 'end center'],
     });
 
-    const progressToUse = isMobile ? autoProgress : (externalScrollYProgress || internalScrollYProgress);
+    const rawProgress = isMobile ? autoProgress : (externalScrollYProgress || internalScrollYProgress);
 
-    // 2. SUAVE E RESPONSIVO: Spring com menos damping para evitar o "atraso" visual
-    const smoothProgress = useSpring(progressToUse, { stiffness: 70, damping: 25 });
+    // Spring mais leve — menos damping para resposta mais rápida
+    const smoothProgress = useSpring(rawProgress, { stiffness: 80, damping: 28, restDelta: 0.001 });
 
-    // Distribuímos as 4 etapas ao longo do scroll (terminando em 0.75 para dar tempo de pausa no final)
-    const STEP1 = 0.05;
-    const STEP2 = 0.28;
-    const STEP3 = 0.51;
-    const STEP4 = 0.75;
-
-    // 3. O CAMINHO DO CAMINHÃO: 
-    // Distância exata de 4 ícones com gap 12 é 288px.
     const scaleY = useTransform(smoothProgress, [STEP1, STEP4], [0, 1]);
     const truckY = useTransform(smoothProgress, [STEP1, STEP4], [0, 288]);
 
-    // Gatilhos para os Checks
     const step1Active = useTransform(smoothProgress, [0, STEP1], [1, 1]);
     const step2Active = useTransform(smoothProgress, [STEP2 - 0.1, STEP2], [0, 1]);
     const step3Active = useTransform(smoothProgress, [STEP3 - 0.1, STEP3], [0, 1]);
@@ -68,23 +66,25 @@ export default function LogisticFlow({ scrollYProgress: externalScrollYProgress 
 
     return (
         <div className="w-full flex items-center justify-center py-6 md:py-20">
-            <motion.div
+            <div
                 ref={containerRef}
                 className="bg-white border border-zinc-100 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.05)] p-6 md:p-10 relative overflow-hidden w-full rounded-2xl max-w-lg"
             >
                 <div className="mb-8 md:mb-12">
-                    <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] mb-1">Status da Logística</h3>
+                    <h3 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em] mb-1">
+                        Status da Logística
+                    </h3>
                     <p className="text-xl md:text-2xl font-light text-zinc-900">Acompanhe o processo</p>
                 </div>
 
                 <div className="relative">
-                    {/* Linhas de trilha */}
+                    {/* Trilha de fundo */}
                     <div className="absolute left-[23px] top-6 h-[288px] w-[2px] bg-zinc-50" />
+                    {/* Trilha animada */}
                     <motion.div
                         style={{ scaleY }}
                         className="absolute left-[23px] top-6 h-[288px] w-[2px] bg-[#C5A059] z-10 origin-top"
                     />
-
                     {/* Caminhão */}
                     <motion.div
                         style={{ y: truckY }}
@@ -93,101 +93,110 @@ export default function LogisticFlow({ scrollYProgress: externalScrollYProgress 
                         <IconTruckDelivery size={18} />
                     </motion.div>
 
-                    {/* Conteiner dos Steps */}
                     <div className="space-y-12 relative z-30">
                         <Step activeProgress={step1Active} icon={<IconBrandWhatsapp size={22} />} title="1. Pedido" desc="Reserva via WhatsApp." />
                         <Step activeProgress={step2Active} icon={<IconUsersGroup size={22} />} title="2. Grupo" desc="Volume de atacado atingido." />
                         <Step activeProgress={step3Active} icon={<IconPackageExport size={22} />} title="3. Separação" desc="Separação e conferência." />
-                        <Step 
-                            activeProgress={step4Active} 
-                            icon={<IconSend size={22} />} 
-                            title="4. Envio" 
-                            desc="Despacho direto para você." 
-                            activeColor="#10b981" 
-                            isHeart={true} 
+                        <Step
+                            activeProgress={step4Active}
+                            icon={<IconSend size={22} />}
+                            title="4. Envio"
+                            desc="Despacho direto para você."
+                            activeColor="#10b981"
+                            isFinal
                         />
                     </div>
                 </div>
-            </motion.div>
+            </div>
         </div>
     );
 }
 
-function Step({ activeProgress, icon, title, desc, activeColor = "#C5A059", showStars = false }: any) {
-    const bgColor = useTransform(activeProgress, [0, 1], ["#f4f4f5", activeColor]);
-    const textColor = useTransform(activeProgress, [0, 1], ["#a1a1aa", "#ffffff"]);
+interface StepProps {
+    activeProgress: MotionValue<number>;
+    icon: React.ReactNode;
+    title: string;
+    desc: string;
+    activeColor?: string;
+    isFinal?: boolean;
+}
 
-    const checkOpacity = useTransform(activeProgress, [0.6, 0.9], [0, 1]);
-    const iconOpacity = useTransform(activeProgress, [0.1, 0.4], [1, 0]);
+function Step({ activeProgress, icon, title, desc, activeColor = '#C5A059', isFinal = false }: StepProps) {
+    // Usar useState + useEffect em vez de múltiplos useTransform encadeados
+    const [active, setActive] = useState(() => activeProgress.get() > 0.6);
+
+    useEffect(() => {
+        // Sync initial value
+        setActive(activeProgress.get() > 0.6);
+        const unsub = activeProgress.on('change', (v) => {
+            setActive(v > 0.6);
+        });
+        return unsub;
+    }, [activeProgress]);
 
     return (
         <div className="flex items-start gap-8 text-left h-12">
-            <motion.div
-                style={{ backgroundColor: bgColor, color: textColor }}
-                className="w-12 h-12 shrink-0 rounded-full flex items-center justify-center relative border border-white shadow-sm"
+            <div
+                className="w-12 h-12 shrink-0 rounded-full flex items-center justify-center relative border border-white shadow-sm transition-colors duration-500"
+                style={{ backgroundColor: active ? activeColor : '#f4f4f5', color: active ? '#fff' : '#a1a1aa' }}
             >
-                {/* Estrelas Douradas Cintilantes */}
-                {showStars && (
-                    <motion.div
-                        style={{ opacity: checkOpacity }} // Só aparece quando o passo está ativo
-                        className="absolute inset-0 pointer-events-none"
-                    >
-                        <motion.div
-                            animate={{ scale: [0, 1, 0], opacity: [0, 1, 0], rotate: [0, 90] }}
-                            transition={{ duration: 2, repeat: Infinity, delay: 0 }}
-                            className="absolute -top-2 -left-2 text-[#C5A059]"
-                        >
-                            <IconStarFilled size={12} />
-                        </motion.div>
-                        <motion.div
-                            animate={{ scale: [0, 1, 0], opacity: [0, 1, 0], rotate: [0, -90] }}
-                            transition={{ duration: 1.5, repeat: Infinity, delay: 0.5 }}
-                            className="absolute -top-1 -right-3 text-[#C5A059]"
-                        >
-                            <IconStarFilled size={14} />
-                        </motion.div>
-                        <motion.div
-                            animate={{ scale: [0, 1, 0], opacity: [0, 1, 0], rotate: [0, 45] }}
-                            transition={{ duration: 2.2, repeat: Infinity, delay: 1 }}
-                            className="absolute -bottom-2 -left-4 text-[#C5A059]"
-                        >
-                            <IconStarFilled size={10} />
-                        </motion.div>
-                        <motion.div
-                            animate={{ scale: [0, 1, 0], opacity: [0, 1, 0], rotate: [0, -45] }}
-                            transition={{ duration: 1.8, repeat: Infinity, delay: 0.2 }}
-                            className="absolute -bottom-1 -right-2 text-[#C5A059]"
-                        >
-                            <IconStarFilled size={12} />
-                        </motion.div>
-                    </motion.div>
-                )}
-
-                <motion.div 
-                    style={{ opacity: iconOpacity }} 
-                    animate={showStars ? { scale: [1, 1.15, 1] } : {}}
-                    transition={showStars ? { duration: 1.5, repeat: Infinity, ease: "easeInOut" } : {}}
-                    className="absolute"
+                <div
+                    className="absolute transition-opacity duration-300"
+                    style={{ opacity: active ? 0 : 1 }}
                 >
                     {icon}
-                </motion.div>
-                <motion.div 
-                    style={{ opacity: checkOpacity }} 
-                    animate={showStars ? { scale: [1, 1.15, 1] } : {}}
-                    transition={showStars ? { duration: 1.5, repeat: Infinity, ease: "easeInOut" } : {}}
-                    className="absolute"
+                </div>
+                <div
+                    className="absolute transition-opacity duration-300"
+                    style={{ opacity: active ? 1 : 0 }}
                 >
-                    {showStars ? <IconSend size={22} fill="currentColor" /> : <IconCheck size={24} stroke={3} />}
-                </motion.div>
-            </motion.div>
+                    {isFinal
+                        ? <IconSend size={22} fill="currentColor" />
+                        : <IconCheck size={24} strokeWidth={3} />
+                    }
+                </div>
+                
+                {isFinal && active && (
+                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                        {[...Array(5)].map((_, i) => {
+                            const angle = (i / 5) * Math.PI * 2;
+                            const radius = 35; // Distância do centro (fora da bolinha de 48px)
+                            const x = Math.cos(angle) * radius;
+                            const y = Math.sin(angle) * radius;
 
-            <motion.div
-                style={{ opacity: useTransform(activeProgress, [0, 1], [0.4, 1]) }}
-                className="pt-1 flex flex-col justify-center"
+                            return (
+                                <motion.div
+                                    key={i}
+                                    initial={{ opacity: 0, scale: 0.5, x, y, rotate: 0 }}
+                                    animate={{
+                                        opacity: [0, 1, 0],
+                                        scale: [0.5, 1.2, 0.5],
+                                        rotate: [0, 180],
+                                    }}
+                                    transition={{
+                                        duration: 2,
+                                        repeat: Infinity,
+                                        repeatType: "loop",
+                                        ease: "easeInOut",
+                                        delay: i * 0.4,
+                                    }}
+                                    className="absolute text-[#C5A059]"
+                                >
+                                    <IconStar size={14} fill="currentColor" />
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+
+            <div
+                className="pt-1 flex flex-col justify-center transition-opacity duration-500"
+                style={{ opacity: active ? 1 : 0.4 }}
             >
                 <p className="text-base font-bold text-zinc-900 uppercase tracking-tight leading-none">{title}</p>
                 <p className="text-sm text-zinc-500 mt-1">{desc}</p>
-            </motion.div>
+            </div>
         </div>
     );
 }

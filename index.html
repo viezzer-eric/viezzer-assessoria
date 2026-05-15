@@ -1,10 +1,30 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>viezzer-asessoria</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    <!-- Performance: evita FOUC e tela branca -->
+    <meta name="theme-color" content="#F5F5F4" />
+    <style>
+      /* Critical CSS inline — evita tela branca enquanto o bundle carrega */
+      html, body, #root {
+        margin: 0;
+        padding: 0;
+        background-color: #F5F5F4;
+        min-height: 100vh;
+      }
+    </style>
+
+    <!-- SEO básico -->
+    <title>Viezzer Assessoria — Preço de atacado, unidade por unidade</title>
+    <meta name="description" content="Compras coletivas e assessoria personalizada. Fechamos lotes exclusivos direto com fornecedores e enviamos para sua casa." />
+
+    <!-- Open Graph para WhatsApp/Instagram -->
+    <meta property="og:title" content="Viezzer Assessoria" />
+    <meta property="og:description" content="Preço de atacado, unidade por unidade." />
+    <meta property="og:type" content="website" />
   </head>
   <body>
     <div id="root"></div>

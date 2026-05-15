@@ -6,8 +6,33 @@
   --mono: ui-monospace, Consolas, monospace;
 }
 
+/* Garante que fontes não bloqueiem render */
+@font-face {
+  font-display: swap;
+}
+
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Evita layout shift no mobile */
+  overflow-x: hidden;
+}
+
+/* Contém will-change para evitar layer explosion */
+.motion-safe {
+  will-change: auto;
+}
+
+/* Tela branca no mobile: garante que o root renderize imediatamente */
+#root {
+  min-height: 100dvh;
+  background-color: #F5F5F4;
+}
+
+/* Blur pesado causa stutter no mobile — usar com moderação */
+@media (max-width: 768px) {
+  .blur-\[120px\] {
+    display: none;
+  }
 }

@@ -1,8 +1,13 @@
 import { motion } from "framer-motion";
 import { IconDiscount2, IconUsers, IconTrophy, IconTruck } from "@tabler/icons-react";
 
-
-const cardData: Record<string, { title: string; description: string; Icon: any; bg: string; iconBg: string }> = {
+const cardData: Record<string, {
+    title: string;
+    description: string;
+    Icon: React.ComponentType<{ size?: number }>;
+    bg: string;
+    iconBg: string;
+}> = {
     curadoria: {
         title: "Curadoria de Elite",
         description: "Não somos um marketplace aberto. Cada item é testado e selecionado: só entra o que é nota 10.",
@@ -35,8 +40,8 @@ const cardData: Record<string, { title: string; description: string; Icon: any; 
 
 const cards = [
     { id: "curadoria", size: "md:col-span-2", isMain: true },
-    { id: "preco",     size: "md:col-span-1", isMain: false },
-    { id: "comunidade",size: "md:col-span-1", isMain: false },
+    { id: "preco", size: "md:col-span-1", isMain: false },
+    { id: "comunidade", size: "md:col-span-1", isMain: false },
     { id: "logistica", size: "md:col-span-2", isMain: true },
 ];
 
@@ -44,8 +49,6 @@ export default function WhyUs() {
     return (
         <section className="py-24 bg-white px-4 overflow-hidden">
             <div className="max-w-7xl mx-auto">
-
-                {/* Header */}
                 <div className="text-center mb-16">
                     <h2 className="text-4xl font-light text-zinc-900 mb-4">
                         Por que comprar{" "}
@@ -56,56 +59,29 @@ export default function WhyUs() {
                     </p>
                 </div>
 
-                {/* Bento Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:auto-rows-[280px]">
                     {cards.map((card, index) => {
                         const { title, description, Icon, bg, iconBg } = cardData[card.id];
-
                         return (
                             <motion.div
                                 key={card.id}
                                 className={`relative overflow-hidden rounded-3xl p-8 flex flex-col justify-between ${bg} ${card.size}`}
-                                initial={{ opacity: 0, y: 24 }}
+                                initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
-                                whileHover={{ y: -6, boxShadow: "0 20px 48px -12px rgba(197,160,89,0.2)" }}
-                                transition={{
-                                    y: { type: "spring", stiffness: 300, damping: 22 },
-                                    boxShadow: { duration: 0.25 },
-                                    opacity: { duration: 0.4, delay: index * 0.08 },
-                                }}
-                                viewport={{ once: true }}
+                                viewport={{ once: true, margin: "-60px" }}
+                                transition={{ duration: 0.4, delay: index * 0.07 }}
                             >
-                                {/* Glow de fundo no hover */}
-                                <motion.div
-                                    className="absolute inset-0 rounded-3xl pointer-events-none"
-                                    initial={{ opacity: 0 }}
-                                    whileHover={{ opacity: 1 }}
-                                    transition={{ duration: 0.3 }}
-                                    style={{
-                                        background: "radial-gradient(circle at 50% 0%, rgba(197,160,89,0.07) 0%, transparent 70%)",
-                                    }}
-                                />
-
-                                {/* Ícone */}
                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 ${iconBg}`}>
                                     <Icon size={26} />
                                 </div>
-
-                                {/* Texto */}
                                 <div>
-                                    <h3
-                                            className={`font-semibold text-zinc-900 mb-2 ${card.isMain ? "text-2xl" : "text-lg"}`}
-                                        >
-                                            {title}
-                                        </h3>
-                                    <p
-                                            className={`text-zinc-500 leading-relaxed ${card.isMain ? "text-base max-w-md" : "text-sm"}`}
-                                        >
-                                            {description}
-                                        </p>
+                                    <h3 className={`font-semibold text-zinc-900 mb-2 ${card.isMain ? "text-2xl" : "text-lg"}`}>
+                                        {title}
+                                    </h3>
+                                    <p className={`text-zinc-500 leading-relaxed ${card.isMain ? "text-base max-w-md" : "text-sm"}`}>
+                                        {description}
+                                    </p>
                                 </div>
-
-                                {/* Ícone decorativo de fundo */}
                                 <div className="absolute -bottom-6 -right-6 opacity-[0.04] text-zinc-900 pointer-events-none">
                                     <Icon size={130} />
                                 </div>
